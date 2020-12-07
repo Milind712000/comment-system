@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Post, Comment
+from .models import Comment
 from .forms import CommentForm
 from django.core import serializers
 
@@ -19,9 +19,8 @@ def transform_clist(clist, depth=None):
     return cdict
 
 
-def nested_comments(post_id, base_depth=0, root_comment_id=None):
-    p = Post.objects.get(pk=post_id)
-    cqlist = p.comment_set.filter(depth__lte=base_depth + 3, depth__gte=base_depth)
+def nested_comments(base_depth=0, root_comment_id=None):
+    cqlist = Comment.objects.filter(depth__lte=base_depth + 3, depth__gte=base_depth)
     c0 = transform_clist(cqlist, base_depth + 0)
     c1 = transform_clist(cqlist, base_depth + 1)
     c2 = transform_clist(cqlist, base_depth + 2)
@@ -48,20 +47,20 @@ def nested_comments(post_id, base_depth=0, root_comment_id=None):
     return list(c0.values())
 
 
-def postDetail(request, post_id):
-    comments = nested_comments(post_id, base_depth=0)
-    context = {"post_id": post_id, "comments": comments, "is_expanded": False}
-    return render(request, "comms/post.html", context)
+def detailView(request):
+    comments = nested_comments(base_depth=0)
+    context = {"comments": comments, "is_expanded": False}
+    return render(request, "comms/list.html", context)
 
 
-def commentExpand(request, post_id, comment_id):
+def commentExpand(request, comment_id):
     c = Comment.objects.get(pk=comment_id)
-    comments = nested_comments(post_id, base_depth=c.depth, root_comment_id=comment_id)
-    context = {"post_id": post_id, "comments": comments, "is_expanded": True}
-    return render(request, "comms/post.html", context)
+    comments = nested_comments(base_depth=c.depth, root_comment_id=comment_id)
+    context = {"comments": comments, "is_expanded": True}
+    return render(request, "comms/list.html", context)
 
 
-def addComment(request, post_id, comment_id):
+def addComment(request, comment_id):
     if request.method == "POST":
         form = CommentForm(request.POST, request.FILES)
         if form.is_valid():
@@ -72,9 +71,8 @@ def addComment(request, post_id, comment_id):
                 cparent = Comment.objects.get(pk=comment_id)
                 comment.parent_comment = cparent
                 comment.depth = cparent.depth + 1
-            comment.parent_post = Post.objects.get(pk=post_id)
             comment.save()
-            return redirect("comms:detail", post_id=post_id)
+            return redirect("comms:detail")
     else:
         form = CommentForm()
     return render(request, "comms/add.html", {"form": form})

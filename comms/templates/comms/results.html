@@ -5,7 +5,10 @@
 <div class="container mt-5 pb-5 bg-white">
     <div class="row mb-5">
         <div class="col-md-12">
-            <h1 class="display-5">Comments</h1>
+            <h1 class="display-5 mt-3">Search Results</h1>
+            {% if not comments %}
+            <h1 class="display-5">No matching comment</h1>
+            {% endif %}
             {% for c0 in comments %}
             <div class="media mt-3" pk="{{ c0.obj.pk }}" hasMore="{{ c0.more }}">
                 <img src="{% static 'comms/img/rarrow.png' %}" height="32px" width="32px" class="mr-3">
@@ -14,8 +17,7 @@
                     <img src="{{c0.obj.comment_media.url}}"><br>
                     {% endif %}
                     {{ c0.obj.comment_text }} <br>
-                    <a href="{% url 'comms:commentExpand' c0.obj.parent_post.pk c0.obj.pk %}"
-                        class="card-link display-5">Expand</a>
+                    <a href="{% url 'comms:commentExpand' c0.obj.pk %}" class="btn btn-primary">Expand</a>
                 </div>
             </div>
             {% endfor %}

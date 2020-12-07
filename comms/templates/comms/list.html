@@ -5,9 +5,8 @@
 <div class="container mt-5 pb-5 bg-white">
     <div class="row">
         <div class="col-md-12">
-            <h1 class="display-5">Post {{post_id}} </h1>
             {% if not is_expanded %}
-            <a href="{% url 'comms:addComment' post_id 0 %}" class="card-link display-5">Add Root
+            <a href="{% url 'comms:addComment' 0 %}" class="btn btn-primary mt-3">Add Root
                 Comment</a>
             {% endif %}
         </div>
@@ -16,7 +15,12 @@
         <div class="col-md-12">
             <h1 class="display-5">Comments</h1>
             {% if is_expanded %}
-            <a href="{% url 'comms:detail' post_id %}" class="card-link display-5">Go Up</a>
+
+            {% if comments and comments.0 and comments.0.obj.parent_comment %}
+            <a href="{% url 'comms:commentExpand' comments.0.obj.parent_comment.pk %}" class="btn btn-primary">Go Up</a>
+            {% endif%}
+
+            <a href="{% url 'comms:detail' %}" class="btn btn-primary">Go To Root</a>
             {% endif %}
             {% for c0 in comments %}
             <div class="media mt-3" pk="{{ c0.obj.pk }}" hasMore="{{ c0.more }}">
@@ -26,7 +30,7 @@
                     <img src="{{c0.obj.comment_media.url}}"><br>
                     {% endif %}
                     {{ c0.obj.comment_text }} <br>
-                    <a href="{% url 'comms:addComment' post_id c0.obj.pk %}" class="card-link display-5">Reply</a>
+                    <a href="{% url 'comms:addComment' c0.obj.pk %}" class="btn btn-primary">Reply</a>
 
                     {% for c1 in c0.children %}
                     <div class="media mt-3" pk="{{ c1.obj.pk }}" hasMore="{{ c1.more }}">
@@ -36,8 +40,7 @@
                             <img src="{{c1.obj.comment_media.url}}"><br>
                             {% endif %}
                             {{ c1.obj.comment_text }} <br>
-                            <a href="{% url 'comms:addComment' post_id c1.obj.pk %}"
-                                class="card-link display-5">Reply</a>
+                            <a href="{% url 'comms:addComment' c1.obj.pk %}" class="btn btn-primary">Reply</a>
 
                             {% for c2 in c1.children %}
                             <div class="media mt-3" pk="{{ c2.obj.pk }}" hasMore="{{ c2.more }}">
@@ -47,11 +50,10 @@
                                     <img src="{{c2.obj.comment_media.url}}"><br>
                                     {% endif %}
                                     {{ c2.obj.comment_text }} <br>
-                                    <a href="{% url 'comms:addComment' post_id c2.obj.pk %}"
-                                        class="card-link display-5">Reply</a>
+                                    <a href="{% url 'comms:addComment' c2.obj.pk %}" class="btn btn-primary">Reply</a>
                                     {% if c2.more %}
-                                    <a href="{% url 'comms:commentExpand' post_id c2.obj.pk %}"
-                                        class="card-link display-5">Expand</a>
+                                    <a href="{% url 'comms:commentExpand' c2.obj.pk %}"
+                                        class="btn btn-primary">Expand</a>
                                     {% endif %}
 
                                 </div>
