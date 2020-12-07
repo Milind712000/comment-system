@@ -14,6 +14,5 @@ urlpatterns = [
         views.addComment,
         name="addComment",
     ),
-    # path("post/<int:post_id>", views.postDetail, name="detail"),
-    # path("post/<int:post_id>", views.postDetail, name="detail"),
+    path("search/", views.searchComments, name="search"),
 ]

@@ -2,12 +2,13 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Post, Comment
 from .forms import CommentForm
+from django.core import serializers
 
 
-def transform_clist(clist, depth):
+def transform_clist(clist, depth=None):
     cdict = {}
     for comment in clist:
-        if comment.depth != depth:
+        if depth != None and comment.depth != depth:
             continue
         cobj = {
             "obj": comment,
@@ -77,3 +78,10 @@ def addComment(request, post_id, comment_id):
     else:
         form = CommentForm()
     return render(request, "comms/add.html", {"form": form})
+
+
+def searchComments(request):
+    query_text = request.POST["query"]
+    clist = Comment.objects.filter(comment_text__icontains=query_text)
+    clist = transform_clist(clist)
+    return render(request, "comms/results.html", {"comments": clist.values()})
