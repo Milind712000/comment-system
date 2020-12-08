@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+import whitenoise
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +30,7 @@ SECRET_KEY = "tk=eq+!df+%zzuymj^s!(%@6wli=1fen7a#wfpd@4^m14cjkq!"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['fierce-reaches-02650.herokuapp.com', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['fierce-reaches-02650.herokuapp.com', '127.0.0.1', '0.0.0.0', 'localhost']
 
 
 # Application definition
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = "dg_app.urls"
