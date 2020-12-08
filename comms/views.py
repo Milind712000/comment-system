@@ -4,7 +4,7 @@ from .models import Comment
 from .forms import CommentForm
 from django.core import serializers
 
-
+# Convert list of comments to a dictionary, filter with depth if provided
 def transform_clist(clist, depth=None):
     cdict = {}
     for comment in clist:
@@ -18,7 +18,8 @@ def transform_clist(clist, depth=None):
         cdict[comment.pk] = cobj
     return cdict
 
-
+# Get a nested representation of Comments starting at depth = base_depth
+# if root_comment_id is provided on return comments that are children of this root comment
 def nested_comments(base_depth=0, root_comment_id=None):
     cqlist = Comment.objects.filter(depth__lte=base_depth + 3, depth__gte=base_depth)
     c0 = transform_clist(cqlist, base_depth + 0)
@@ -46,24 +47,25 @@ def nested_comments(base_depth=0, root_comment_id=None):
             return []
     return list(c0.values())
 
-
+# Route Handler : /
 def detailView(request):
     comments = nested_comments(base_depth=0)
     context = {"comments": comments, "is_expanded": False}
     return render(request, "comms/list.html", context)
 
-
+# Route Handler : /comment/:id
 def commentExpand(request, comment_id):
     c = Comment.objects.get(pk=comment_id)
     comments = nested_comments(base_depth=c.depth, root_comment_id=comment_id)
     context = {"comments": comments, "is_expanded": True}
     return render(request, "comms/list.html", context)
 
-
+# Route Handler : /add/comment/:id 
 def addComment(request, comment_id):
     if request.method == "POST":
         form = CommentForm(request.POST, request.FILES)
         if form.is_valid():
+            # save without commiting to generate primary key
             comment = form.save(commit=False)
             if comment_id == 0:
                 comment.parent_comment = None
@@ -71,15 +73,17 @@ def addComment(request, comment_id):
                 cparent = Comment.objects.get(pk=comment_id)
                 comment.parent_comment = cparent
                 comment.depth = cparent.depth + 1
+            # save to db
             comment.save()
             return redirect("comms:detail")
     else:
         form = CommentForm()
     return render(request, "comms/add.html", {"form": form})
 
-
+# Route Handler : /search 
 def searchComments(request):
     query_text = request.POST["query"]
+    # case insensitive search comment text
     clist = Comment.objects.filter(comment_text__icontains=query_text)
     clist = transform_clist(clist)
     return render(request, "comms/results.html", {"comments": clist.values()})
