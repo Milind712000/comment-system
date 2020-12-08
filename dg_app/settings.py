@@ -29,7 +29,7 @@ SECRET_KEY = "tk=eq+!df+%zzuymj^s!(%@6wli=1fen7a#wfpd@4^m14cjkq!"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['fierce-reaches-02650.herokuapp.com', '127.0.0.1', '0.0.0.0']
 
 
 # Application definition
@@ -123,3 +123,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
